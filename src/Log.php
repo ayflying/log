@@ -1,8 +1,8 @@
 <?php
 /**
- * 插件钩子类
+ * 日志类
  * ay@7cuu.com
- * 2017-11-24
+ * 2019-1-11
  *
  */
 namespace Ayflying\Log;
@@ -13,7 +13,8 @@ class Log{
 
 
     /**
-     * Hook初始化
+     * 初始化
+     * @param $info
      */
     function __construct($info)
     {
@@ -21,15 +22,33 @@ class Log{
 
     }
 
+
     /**
-     *  注册添加插件
-     * @param $name 钩子名称
-     * @param $func 钩子使用的方法
+     * 记录日志信息到内存
+     * @param string|array $data
      */
-    public static function add($name,$func)
-    {
-        $GLOBALS['hookList'][$name][]=$func;
+    public static  function record($data){
+
     }
+
+    /**
+     * 把保存在内存中的日志信息（用指定的记录方式）写入，并清空内存中的日志
+     * @param string|array $data
+     */
+    public static  function save($data){
+
+    }
+
+    /**
+     * 实时写入一条日志信息，会触发save操作
+     * @param string|array $data
+     */
+    public static  function write($data){
+
+    }
+
+
+
 
 }
 
