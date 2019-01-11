@@ -1,0 +1,23 @@
+{
+    "name": "ayflying/log",
+    "description": "给php系统增加日志功能",
+    "authors": [
+        {
+            "name": "乔焰阳",
+            "email": "ay@7cuu.com"
+            
+        }
+    ],
+    "license": "MIT",
+    "require": {
+        "php": ">=7.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Ayflying\\Log\\": "src/"
+        },
+        "files": [
+            "src/Log.php"
+        ]
+    }
+}
