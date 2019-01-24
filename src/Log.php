@@ -65,6 +65,10 @@ class Log{
      */
     public static function save($data = null){
 
+		if(!is_array($data)){
+			return false;
+		}
+		
         if(empty($data)){
             $data = self::$data;
 
