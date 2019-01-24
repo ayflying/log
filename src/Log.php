@@ -65,16 +65,17 @@ class Log{
      */
     public static function save($data = null){
 
-		if(!is_array($data)){
-			return false;
-		}
 		
         if(empty($data)){
             $data = self::$data;
-
         }else{
             $data[] = $data;
         }
+		
+		//日志为空不写入
+		if(!is_array($data)){
+			return false;
+		}
 
         foreach($data as $val){
             //日志文件路径
