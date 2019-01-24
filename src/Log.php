@@ -5,7 +5,9 @@
  * 2019-1-11
  *
  */
-namespace Ayflying\Log;
+namespace Ayflying;
+
+use Exception;
 
 // 日志类
 class Log{
@@ -13,18 +15,20 @@ class Log{
      * 数据库配置
      * @var array
      */
-    protected  static $config = [
-        //'path' => __DIR__ . '/../../public/log/',
-        'path' => '/opt/data/wwwroot/heibang/public/log/',
+    public static $config = [
+        'path' => __DIR__ . '/logs/',
+        // 日志文件大小限制（超出会生成多个文件）
+        'file_size' => 1024*1024*100,
     ];
     /**
      * 日志写入驱动
      * @var string
      */
-    static $driver = 'File';
-    static $dir;
-    static $time;
-    static $name;
+    public static $driver = 'File';
+    //分割符号，默认为array,可以为json，或者自定义分隔符
+    public static $depr = 'json';
+    public static $debug = true;
+    private static $data;
 
 
     /**
@@ -34,18 +38,22 @@ class Log{
     function __construct($info)
     {
 
-
-
-
     }
+
+    //public static function
 
 
     /**
      * 记录日志信息到内存
      * @param string|array $data
      */
-    public static function record($data){
-
+    public static function record($name,$data){
+        
+        self::$data[] = [
+            'name' => $name,
+            'data' => $data,
+        ];
+        //self::save($name,$data);
 
     }
 
@@ -55,19 +63,35 @@ class Log{
      * @param string|array $data
      * @return bool
      */
-    public static function save($name,$data){
-        self::format($data);
+    public static function save($data = null){
 
+        if(empty($data)){
+            $data = self::$data;
 
-        $destination = self::$config['path'] . date('Ym') . '/' . date('d') . '/' . $name  . '.log';
+        }else{
+            $data[] = $data;
+        }
 
-        $path = dirname($destination);
-        //echo $path;
+        foreach($data as $val){
+            //日志文件路径
+            $destination = self::$config['path'] . date('Ym') . '/' . date('d') . '/' . $val['name']  . '.log';
+            // 检测日志文件大小，超过配置大小则备份日志文件重新生成
+            if (is_file($destination) && floor(self::$config['file_size']) <= filesize($destination)){
+                try {
+                    rename($destination, dirname($destination) . '/' . time() . '-' . basename($destination));
+                } catch (\Exception $e) {
+                }
+            }
 
-        //return $path;
-        !is_dir($path) && mkdir($path, 0755, true);
-        $message = self::format($data);
-        return error_log($message,3,$destination);
+            $path = dirname($destination);
+            //return $path;
+            !is_dir($path) && mkdir($path, 0755, true);
+            $message = self::format($val['data']);
+            error_log($message,3,$destination);
+
+        }
+
+        return true;
 
     }
 
@@ -78,8 +102,11 @@ class Log{
      * @return bool
      */
     public static function write($name,$data){
-
-        return self::save($name,$data);
+        self::$data = [
+            'name' => $name,
+            'data' => $data,
+        ];
+        return self::save($data);
 
 
     }
@@ -91,8 +118,19 @@ class Log{
      */
     private static function format($arr){
 
-        $str = implode("|",$arr);
-        return $str;
+        switch (self::$depr){
+            case 'json':
+                $str = json_encode($arr);
+                break;
+            case 'array':
+                return $arr;
+                break;
+            default:
+                $str = implode(self::$depr,$arr);
+
+        }
+
+        return $str.PHP_EOL;
     }
 
 
